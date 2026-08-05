@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sintetizador Cuántico — Fase 1</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <p class="eyebrow">Sonidos cuánticos: música del mundo visible</p>
+      <h1>Sintetizador de esfera de Bloch</h1>
+      <p>
+        Arrastra el vector o aplica una compuerta. Su posición transforma
+        la nota, el timbre y el filtro.
+      </p>
+    </header>
+
+    <section class="workspace">
+      <article class="panel sphere-panel">
+        <div class="panel-heading">
+          <div>
+            <span class="step">1</span>
+            <h2>Explora la esfera</h2>
+          </div>
+          <button id="audioButton" class="primary">Activar sonido</button>
+        </div>
+
+        <div id="blochContainer" aria-label="Esfera de Bloch interactiva"></div>
+
+        <div class="coordinates" aria-live="polite">
+          <span>x: <strong id="xValue">0.00</strong></span>
+          <span>y: <strong id="yValue">0.00</strong></span>
+          <span>z: <strong id="zValue">1.00</strong></span>
+        </div>
+      </article>
+
+      <aside class="panel controls-panel">
+        <div class="panel-heading">
+          <div>
+            <span class="step">2</span>
+            <h2>Aplica un hechizo cuántico</h2>
+          </div>
+        </div>
+
+        <div class="gate-grid">
+          <button class="gate" data-gate="H"><b>H</b><span>Imaginación</span></button>
+          <button class="gate" data-gate="X"><b>X</b><span>Espejo</span></button>
+          <button class="gate" data-gate="Z"><b>Z</b><span>Eco</span></button>
+          <button class="gate" data-gate="S"><b>S</b><span>Agua</span></button>
+          <button class="gate" data-gate="T"><b>T</b><span>Brillo</span></button>
+          <button class="gate reset" data-gate="RESET"><b>↺</b><span>Reiniciar</span></button>
+        </div>
+
+        <section class="sound-card">
+          <h3>Lo que controla la esfera</h3>
+          <label>
+            Nota
+            <output id="noteValue">B5</output>
+          </label>
+          <label>
+            Frecuencia
+            <output id="frequencyValue">987.8 Hz</output>
+          </label>
+          <label>
+            Timbre
+            <output id="waveValue">seno</output>
+          </label>
+          <label>
+            Filtro
+            <output id="filterValue">brillante</output>
+          </label>
+        </section>
+
+        <section class="explanation">
+          <h3>¿Qué está pasando?</h3>
+          <p id="message">
+            El vector inicia en el polo norte: el estado |0⟩.
+          </p>
+        </section>
+      </aside>
+    </section>
+
+    <footer>
+      Prototipo educativo — Fase 1 · Una esfera, un qubit, un instrumento.
+    </footer>
+  </main>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
