@@ -1,59 +1,32 @@
-# Sintetizador Cuántico — Fase 1
+# QuantumMusicLab v0.2
 
-Prototipo web para el taller **Sonidos cuánticos: música del mundo visible**.
+Versión navegable del prototipo educativo **Sonidos cuánticos: música del mundo visible**.
 
-## Qué incluye
+## Incluye
+- Esfera de Bloch translúcida verde turquesa.
+- Ejes y etiquetas de acuerdo con la interfaz aprobada.
+- Controles numéricos x, y, z y actualización con Enter o botón.
+- Normalización automática del vector.
+- Compuertas H, X, Y, Z, S y T.
+- CNOT visible y explicada; se habilitará al integrar un segundo qubit.
+- Sonido con Tone.js, filtro y volumen.
+- Cintillo de Ecologías de la Imaginación, 2026.
 
-- Una esfera de Bloch tridimensional.
-- Un vector interactivo que se mueve al arrastrar el mouse.
-- Compuertas H, X, Z, S y T.
-- Síntesis musical en tiempo real.
-- Traducción de coordenadas a parámetros musicales:
-  - `z` → nota/frecuencia;
-  - `x` → forma de onda;
-  - `y` → frecuencia de corte del filtro.
-- Lenguaje infantil para nombrar las compuertas.
-
-## Cómo ejecutarlo
-
-Este prototipo carga Three.js y Tone.js desde internet.
-
-### Método recomendado
-
-1. Descomprime la carpeta.
-2. Abre una terminal dentro de la carpeta.
-3. Ejecuta:
-
-```bash
+## Ejecutar
+```bat
+cd /d D:\Proyectos\QuantumMusicLab
 python -m http.server 8000
 ```
+Abrir `http://localhost:8000`.
 
-4. Abre en el navegador:
+Three.js y Tone.js se cargan desde internet.
 
-```text
-http://localhost:8000
+## Git
+```bat
+git status
+git add .
+git commit -m "feat: agrega interfaz v0.2 con controles, ejes y cintillo institucional"
+git tag -a v0.2.0 -m "Interfaz v0.2 del sintetizador cuantico"
+git push
+git push origin v0.2.0
 ```
-
-5. Presiona **Activar sonido**. Los navegadores requieren una interacción antes de reproducir audio.
-
-## Interacción
-
-- Arrastra dentro de la esfera para mover el vector.
-- Presiona H, X, Z, S o T para aplicar una transformación.
-- Observa los valores de x, y, z.
-- Escucha cómo cambian nota, timbre y filtro.
-
-## Alcance de esta primera versión
-
-Esta versión no ejecuta un backend cuántico. Las compuertas se representan mediante
-rotaciones matemáticas del vector de Bloch, adecuadas para validar la interfaz y la
-experiencia educativa de la Fase 1.
-
-## Próximo incremento
-
-- historial visual del circuito;
-- reproducción continua;
-- secuenciador rítmico;
-- cinco esferas/qubits musicales;
-- modo infantil y modo facilitador;
-- exportación de una micropieza sonora.

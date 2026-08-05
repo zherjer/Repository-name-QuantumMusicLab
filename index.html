@@ -1,92 +1,60 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sintetizador Cuántico — Fase 1</title>
-  <link rel="stylesheet" href="./styles.css" />
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QuantumMusicLab v0.2</title><link rel="icon" href="data:,"><link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <main class="app">
-    <header class="hero">
-      <p class="eyebrow">Sonidos cuánticos: música del mundo visible</p>
-      <h1>Sintetizador de esfera de Bloch</h1>
-      <p>
-        Arrastra el vector o aplica una compuerta. Su posición transforma
-        la nota, el timbre y el filtro.
-      </p>
-    </header>
+<main class="app">
+<header><div><b>QuantumMusicLab</b><span>|</span><span>Sintetizador Cuántico – Fase 1 v0.2</span></div>
+<button id="audio">🔊 Activar sonido</button></header>
 
-    <section class="workspace">
-      <article class="panel sphere-panel">
-        <div class="panel-heading">
-          <div>
-            <span class="step">1</span>
-            <h2>Explora la esfera</h2>
-          </div>
-          <button id="audioButton" class="primary">Activar sonido</button>
-        </div>
+<section class="grid">
+<aside>
+<section class="panel">
+<h2>Controles del vector</h2>
+<p>Puedes mover el vector con el mouse o modificar los valores y presionar Actualizar.</p>
+<div class="ctrl z"><label>z (eje Z)</label><input id="zN" type="number" min="-1" max="1" step=".01" value=".71"><input id="zR" type="range" min="-1" max="1" step=".01" value=".71"></div>
+<div class="ctrl x"><label>x (eje X)</label><input id="xN" type="number" min="-1" max="1" step=".01" value=".50"><input id="xR" type="range" min="-1" max="1" step=".01" value=".50"></div>
+<div class="ctrl y"><label>y (eje Y)</label><input id="yN" type="number" min="-1" max="1" step=".01" value=".50"><input id="yR" type="range" min="-1" max="1" step=".01" value=".50"></div>
+<button id="update" class="mainbtn">Actualizar</button><small id="warn"></small>
+</section>
+<section class="panel"><h2>Coordenadas actuales</h2>
+<div class="coords"><p><i class="cx">x</i> <output id="xo">0.50</output></p><p><i class="cy">y</i> <output id="yo">0.50</output></p><p><i class="cz">z</i> <output id="zo">0.71</output></p><hr>
+<p id="ket">|ψ⟩</p><p>Norma = <output id="norm">1.00</output></p></div>
+<button id="reset" class="mainbtn">↻ Reiniciar</button></section>
+</aside>
 
-        <div id="blochContainer" aria-label="Esfera de Bloch interactiva"></div>
+<section class="center">
+<div id="bloch"></div>
+<div class="bottom">
+<section class="panel"><h2>Ángulos</h2><p><i class="th">θ</i> Ángulo polar (0 a π)</p><p><i class="ph">φ</i> Ángulo azimutal (0 a 2π)</p><p class="mini">θ=<output id="theta"></output> · φ=<output id="phi"></output></p></section>
+<section class="panel"><h2>Estados especiales</h2><div class="states"><div><p><b class="cz">|0⟩</b> Polo norte (+z)</p><p><b class="cz">|1⟩</b> Polo sur (−z)</p></div>
+<div><p><b class="cx">x:</b> −x (derecha) / +x (izquierda)</p><p><b class="cy">y:</b> +y (frente) / −y (atrás)</p><p><b class="cz">z:</b> +z |0⟩ (arriba) / −z |1⟩ (abajo)</p></div></div></section>
+</div></section>
 
-        <div class="coordinates" aria-live="polite">
-          <span>x: <strong id="xValue">0.00</strong></span>
-          <span>y: <strong id="yValue">0.00</strong></span>
-          <span>z: <strong id="zValue">1.00</strong></span>
-        </div>
-      </article>
+<aside>
+<section class="panel"><h2>Compuertas cuánticas</h2>
+<div class="gates">
+<button data-g="H" class="gh"><b>H</b><span>H</span></button><button data-g="X" class="gx"><b>X</b><span>⊕</span></button>
+<button data-g="Y" class="gy"><b>Y</b><span>Y</span></button><button data-g="Z" class="gz"><b>Z</b><span>Z</span></button>
+<button data-g="S" class="gs"><b>S</b><span>S</span></button><button data-g="T" class="gt"><b>T</b><span>T</span></button>
+<button data-g="CNOT" class="cnot"><b>CNOT</b><span>●<br>│<br>⊕</span></button></div>
+<div class="cnotbox"><div><h3>CNOT (Controlled-NOT)</h3><p>Voltea el qubit objetivo (⊕) si el qubit de control (●) está en |1⟩.</p><small>Se habilitará al integrar el segundo qubit.</small></div><strong>●<br>│<br>⊕</strong></div>
+<p id="msg" class="msg">El vector inicia en una superposición.</p>
+</section>
+<section class="panel"><h2>Sonido actual 〰</h2>
+<div class="sound"><p><span>Nota</span><output id="note">Sol 4</output></p><p><span>Frecuencia</span><output id="freq">392.00 Hz</output></p><p><span>Forma de onda</span><output id="wave">Seno</output></p>
+<p><label>Filtro (brillo)</label><input id="filter" type="range" min="0" max="1" step=".01" value=".63"><output id="fo">0.63</output></p>
+<p><label>Volumen</label><input id="volume" type="range" min="0" max="1" step=".01" value=".80"><output id="vo">0.80</output></p></div></section>
+<section class="panel"><h2>Instrucciones rápidas</h2><ul><li>Arrastra el vector sobre la esfera.</li><li>Modifica x, y, z y presiona Actualizar.</li><li>Aplica compuertas para rotar el estado.</li><li>Escucha cómo cambia el sonido.</li></ul></section>
+</aside>
+</section>
 
-      <aside class="panel controls-panel">
-        <div class="panel-heading">
-          <div>
-            <span class="step">2</span>
-            <h2>Aplica un hechizo cuántico</h2>
-          </div>
-        </div>
-
-        <div class="gate-grid">
-          <button class="gate" data-gate="H"><b>H</b><span>Imaginación</span></button>
-          <button class="gate" data-gate="X"><b>X</b><span>Espejo</span></button>
-          <button class="gate" data-gate="Z"><b>Z</b><span>Eco</span></button>
-          <button class="gate" data-gate="S"><b>S</b><span>Agua</span></button>
-          <button class="gate" data-gate="T"><b>T</b><span>Brillo</span></button>
-          <button class="gate reset" data-gate="RESET"><b>↺</b><span>Reiniciar</span></button>
-        </div>
-
-        <section class="sound-card">
-          <h3>Lo que controla la esfera</h3>
-          <label>
-            Nota
-            <output id="noteValue">B5</output>
-          </label>
-          <label>
-            Frecuencia
-            <output id="frequencyValue">987.8 Hz</output>
-          </label>
-          <label>
-            Timbre
-            <output id="waveValue">seno</output>
-          </label>
-          <label>
-            Filtro
-            <output id="filterValue">brillante</output>
-          </label>
-        </section>
-
-        <section class="explanation">
-          <h3>¿Qué está pasando?</h3>
-          <p id="message">
-            El vector inicia en el polo norte: el estado |0⟩.
-          </p>
-        </section>
-      </aside>
-    </section>
-
-    <footer>
-      Prototipo educativo — Fase 1 · Una esfera, un qubit, un instrumento.
-    </footer>
-  </main>
-
-  <script type="module" src="./app.js"></script>
-</body>
-</html>
+<footer>
+<div class="eco"><svg viewBox="0 0 150 120"><line x1="75" y1="15" x2="75" y2="105"/><line x1="20" y1="60" x2="130" y2="60"/><circle class="ring" cx="75" cy="60" r="27"/><circle class="core" cx="75" cy="60" r="12"/><circle class="dy" cx="75" cy="11" r="11"/><circle class="dp" cx="23" cy="60" r="11"/><circle class="dc" cx="127" cy="60" r="11"/><circle class="dg" cx="75" cy="109" r="11"/></svg>
+<div><b>Ecologías de la Imaginación</b><small>Laboratorio Transversal de Arte, Ciencia y Tecnología</small></div></div>
+<div class="line"></div><div><p><b>Prototipo educativo — <em>Fase 1</em></b> · Una esfera, un qubit, un instrumento.</p>
+<p>Proyecto en el marco de Ecologías de la Imaginación —<br>Laboratorio Transversal de Arte, Ciencia y Tecnología · <b class="year">2026</b></p></div>
+</footer>
+</main><script type="module" src="app.js"></script></body></html>
