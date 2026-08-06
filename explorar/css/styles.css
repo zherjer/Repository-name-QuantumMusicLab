@@ -836,3 +836,42 @@ input[type="range"] {
 #runExperimentButton:disabled{cursor:wait;opacity:.65}.experiment-results{margin-top:10px}.experiment-row{display:grid;grid-template-columns:38px minmax(100px,1fr) 84px;align-items:center;gap:8px;margin:8px 0;font-size:.76rem}
 .experiment-track{height:10px;overflow:hidden;border:1px solid rgba(110,190,205,.18);border-radius:999px;background:rgba(255,255,255,.045)}.experiment-fill{height:100%;width:0%;transition:width .25s ease}.experiment-zero{background:linear-gradient(90deg,var(--cyan),var(--green))}.experiment-one{background:linear-gradient(90deg,var(--purple),var(--pink))}.experiment-row output{text-align:right;white-space:nowrap}
 @media(max-width:760px){.prepared-state-box{grid-template-columns:1fr 1fr}.prepared-state-box>div{grid-column:1/-1}}@media(max-width:520px){.shots-panel,.prepared-state-box{grid-template-columns:1fr}}
+
+
+/* v0.5.0 — navegación del micrositio */
+.microsite-nav {
+  width: min(1600px, calc(100% - 24px));
+  margin: 10px auto 0;
+  padding: 9px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(0, 239, 157, .22);
+  border-radius: 12px;
+  background: rgba(3, 14, 19, .9);
+  color: #91a5ad;
+  font-size: .8rem;
+}
+
+.microsite-nav a {
+  color: var(--green);
+  text-decoration: none;
+}
+
+.microsite-nav a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 700px) {
+  .microsite-nav {
+    width: min(100% - 12px, 700px);
+    flex-wrap: wrap;
+  }
+
+  .microsite-nav span {
+    order: -1;
+    width: 100%;
+    text-align: center;
+  }
+}

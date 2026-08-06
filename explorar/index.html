@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#02080d">
+  <title>QuantumMusicLab — Fase 1 v0.5.0 · Explorar</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <nav class="microsite-nav" aria-label="Navegación de QuantumMusicLab">
+      <a href="../">← Menú principal</a>
+      <span>Modo: Explorar un qubit</span>
+      <a href="../instrumento/">Ir al instrumento →</a>
+    </nav>
+    <header class="topbar">
+      <div class="brand">
+        <strong>QuantumMusicLab</strong>
+        <span class="separator">|</span>
+        <span>Sintetizador Cuántico – Fase 1 v0.5.0 · Explorar</span>
+      </div>
+
+      <div class="topbar-actions">
+        <span id="screenMode" class="screen-mode" aria-live="polite"></span>
+        <button id="audioButton" class="audio-button" type="button">
+          <span aria-hidden="true">🔊</span>
+          <span>Activar sonido</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="dashboard">
+      <aside class="left-column">
+<section class="panel coordinates-panel">
+          <h2>Estado del qubit</h2>
+          <div class="coordinate-box state-dashboard">
+            <section class="state-section coordinate-section">
+              <h3>Coordenadas de Bloch</h3>
+
+              <div class="compact-coordinate x-coordinate">
+                <label for="xInput"><span class="x-color">x</span></label>
+                <input id="xInput" type="number" min="-1" max="1" step="0.01" value="0.50">
+                <input id="xSlider" type="range" min="-1" max="1" step="0.01" value="0.50">
+                <div class="range-labels"><span>−1</span><span>+1</span></div>
+              </div>
+
+              <div class="compact-coordinate y-coordinate">
+                <label for="yInput"><span class="y-color">y</span></label>
+                <input id="yInput" type="number" min="-1" max="1" step="0.01" value="0.50">
+                <input id="ySlider" type="range" min="-1" max="1" step="0.01" value="0.50">
+                <div class="range-labels"><span>−1</span><span>+1</span></div>
+              </div>
+
+              <div class="compact-coordinate z-coordinate">
+                <label for="zInput"><span class="z-color">z</span></label>
+                <input id="zInput" type="number" min="-1" max="1" step="0.01" value="0.71">
+                <input id="zSlider" type="range" min="-1" max="1" step="0.01" value="0.71">
+                <div class="range-labels"><span>−1</span><span>+1</span></div>
+              </div>
+
+              <p class="norm-line">Norma = <output id="normValue">1.00</output></p>
+              <p id="inputWarning" class="warning" aria-live="polite"></p>
+            </section>
+
+            <section class="state-section amplitude-section">
+              <h3>Amplitudes cuánticas</h3>
+              <div class="amplitude-grid">
+                <p><span class="amplitude-label">α</span><output id="alphaValue">0.92</output></p>
+                <p><span class="amplitude-label">β</span><output id="betaValue">0.27 + 0.27i</output></p>
+              </div>
+              <p class="symbolic-ket">|ψ⟩ = α|0⟩ + β|1⟩</p>
+              <p id="stateKet" class="state-ket">|ψ⟩</p>
+            </section>
+
+            <section class="state-section probability-section">
+              <h3>Probabilidad de medición</h3>
+              <div class="probability-row">
+                <span class="probability-label">P(|0⟩)</span>
+                <div class="probability-track"><div id="probability0Bar" class="probability-fill probability-zero"></div></div>
+                <output id="probability0Value">85.5 %</output>
+              </div>
+              <div class="probability-row">
+                <span class="probability-label">P(|1⟩)</span>
+                <div class="probability-track"><div id="probability1Bar" class="probability-fill probability-one"></div></div>
+                <output id="probability1Value">14.5 %</output>
+              </div>
+            </section>
+
+            <section class="state-section inline-angle-section">
+              <h3>Ángulos</h3>
+              <div class="inline-angle-row"><span><i class="theta">θ</i> Polar</span><output id="thetaValue"></output></div>
+              <div class="inline-angle-row"><span><i class="phi">φ</i> Azimutal</span><output id="phiValue"></output></div>
+            </section>
+          </div>
+
+          <section class="interpretation-box" aria-live="polite">
+            <h3>Interpretación</h3>
+            <p id="interpretationText">El qubit está más cerca de |0⟩ que de |1⟩.</p>
+          </section>
+
+          <div class="coordinate-actions">
+            <button id="updateVectorButton" class="primary-button" type="button">Actualizar coordenadas</button>
+            <button id="resetButton" class="secondary-button" type="button">↻ Reiniciar</button>
+            <button id="measureButton" class="measurement-button active-measurement" type="button">Medir qubit</button>
+          </div>
+
+          <section class="measurement-results" aria-live="polite">
+            <div class="measurement-summary">
+              <div><span class="measurement-label">Última medición</span><strong id="measurementResult">—</strong></div>
+              <button id="resetMeasurementsButton" type="button">Reiniciar conteo</button>
+            </div>
+            <div class="prepared-state-box">
+              <div><span class="measurement-label">Estado preparado</span><strong id="preparedStateLabel">Estado inicial</strong></div>
+              <button id="savePreparedStateButton" type="button">Guardar estado actual</button>
+              <button id="restorePreparedStateButton" type="button">Restaurar estado</button>
+            </div>
+            <div class="measurement-counts">
+              <div class="count-card count-zero"><span>|0⟩</span><strong id="count0Value">0</strong><small id="count0Percent">0.0 %</small></div>
+              <div class="count-card count-one"><span>|1⟩</span><strong id="count1Value">0</strong><small id="count1Percent">0.0 %</small></div>
+              <div class="count-card count-total"><span>Total</span><strong id="countTotalValue">0</strong><small>mediciones</small></div>
+            </div>
+            <div class="shots-panel">
+              <div class="shots-control"><label for="shotsInput">Número de mediciones</label><input id="shotsInput" type="number" min="1" max="10000" step="1" value="100"></div>
+              <button id="runExperimentButton" type="button">Ejecutar experimento</button>
+            </div>
+            <div class="experiment-results">
+              <div class="experiment-row"><span>|0⟩</span><div class="experiment-track"><div id="experiment0Bar" class="experiment-fill experiment-zero"></div></div><output id="experiment0Value">0 · 0.0 %</output></div>
+              <div class="experiment-row"><span>|1⟩</span><div class="experiment-track"><div id="experiment1Bar" class="experiment-fill experiment-one"></div></div><output id="experiment1Value">0 · 0.0 %</output></div>
+            </div>
+          </section>
+
+          <div class="hidden-current-values" aria-hidden="true">
+            <output id="xValue">0.50</output>
+            <output id="yValue">0.50</output>
+            <output id="zValue">0.71</output>
+          </div>
+        </section>
+      </aside>
+
+      <section class="center-column">
+        <div id="blochContainer" class="bloch-container" aria-label="Esfera de Bloch interactiva"></div>
+
+        <div class="center-bottom single-bottom-panel">
+          <section class="panel compact-panel special-states-panel">
+            <h2>Estados especiales</h2>
+            <div class="special-grid">
+              <div>
+                <p><span class="ket">|0⟩</span> +z, z = +1</p>
+                <p><span class="ket">|1⟩</span> −z, z = −1</p>
+                <p><span class="x-color">|+⟩</span> +x, x = +1</p>
+                <p><span class="x-color">|−⟩</span> −x, x = −1</p>
+              </div>
+              <div>
+                <p><span class="y-color">|+i⟩</span> +y, y = +1</p>
+                <p><span class="y-color">|−i⟩</span> −y, y = −1</p>
+                <p class="state-note">Las coordenadas x, y, z siempre van de −1 a +1.</p>
+                <p class="state-note">Los símbolos |0⟩ y |1⟩ nombran estados; no son coordenadas.</p>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <aside class="right-column">
+        <section class="panel gates-panel">
+          <h2>Compuertas cuánticas</h2>
+
+          <div class="gate-grid">
+            <button class="gate gate-h" data-gate="H" type="button"><b>H</b><span>H</span></button>
+            <button class="gate gate-x" data-gate="X" type="button"><b>X</b><span>⊕</span></button>
+            <button class="gate gate-y" data-gate="Y" type="button"><b>Y</b><span>Y</span></button>
+            <button class="gate gate-z" data-gate="Z" type="button"><b>Z</b><span>Z</span></button>
+            <button class="gate gate-s" data-gate="S" type="button"><b>S</b><span>S</span></button>
+            <button class="gate gate-t" data-gate="T" type="button"><b>T</b><span>T</span></button>
+            <button class="gate gate-cnot" data-gate="CNOT" type="button">
+              <b>CNOT</b><span class="cnot-symbol">●<br>│<br>⊕</span>
+            </button>
+          </div>
+
+          <div class="cnot-explanation">
+            <div>
+              <h3>CNOT (Controlled-NOT)</h3>
+              <p>Voltea el qubit objetivo (⊕) si el qubit de control (●) está en |1⟩.</p>
+              <small>Se habilitará al integrar el segundo qubit.</small>
+            </div>
+            <div class="mini-cnot">●<br>│<br>⊕</div>
+          </div>
+
+          <p id="gateMessage" class="gate-message" aria-live="polite">
+            El vector inicia en una superposición.
+          </p>
+        </section>
+
+        <section class="panel sound-panel">
+          <h2>Sonido actual <span class="wave-icon">〰</span></h2>
+          <div class="sound-row"><span>Nota</span><output id="noteValue">Sol 4</output></div>
+          <div class="sound-row"><span>Frecuencia</span><output id="frequencyValue">392.00 Hz</output></div>
+          <div class="sound-row"><span>Forma de onda</span><output id="waveValue">Seno</output></div>
+
+          <div class="sound-row slider-row">
+            <label for="filterSlider">Filtro (brillo)</label>
+            <input id="filterSlider" type="range" min="0" max="1" step="0.01" value="0.63">
+            <output id="filterAmount">0.63</output>
+          </div>
+
+          <div class="sound-row slider-row">
+            <label for="volumeSlider">Volumen</label>
+            <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.80">
+            <output id="volumeAmount">0.80</output>
+          </div>
+        </section>
+
+        <section class="panel instructions-panel">
+          <h2>Instrucciones rápidas</h2>
+          <ul>
+            <li>Arrastra el vector sobre la esfera.</li>
+            <li>Modifica x, y, z y presiona Actualizar.</li>
+            <li>Aplica compuertas para rotar el estado.</li>
+            <li>Escucha cómo el estado se transforma en sonido.</li>
+          </ul>
+        </section>
+      </aside>
+    </section>
+
+    <footer class="footer-panel">
+      <div class="ecologias-brand">
+        <svg class="ecologias-logo" viewBox="0 0 160 130" role="img" aria-label="Logo adaptado de Ecologías de la Imaginación">
+          <line x1="80" y1="20" x2="80" y2="110"></line>
+          <line x1="25" y1="65" x2="135" y2="65"></line>
+          <circle cx="80" cy="65" r="30" class="ring"></circle>
+          <circle cx="80" cy="65" r="13" class="center"></circle>
+          <circle cx="80" cy="14" r="12" class="dot-yellow"></circle>
+          <circle cx="26" cy="65" r="12" class="dot-pink"></circle>
+          <circle cx="134" cy="65" r="12" class="dot-cyan"></circle>
+          <circle cx="80" cy="116" r="12" class="dot-green"></circle>
+        </svg>
+
+        <div>
+          <strong>Ecologías de la Imaginación</strong>
+          <span>Laboratorio Transversal de Arte, Ciencia y Tecnología</span>
+        </div>
+      </div>
+
+      <div class="footer-divider"></div>
+
+      <div class="project-credit">
+        <p><strong>Prototipo educativo — <span>Fase 1</span></strong> · Una esfera, un qubit, un instrumento.</p>
+        <p>Proyecto en el marco de Ecologías de la Imaginación —<br>
+          Laboratorio Transversal de Arte, Ciencia y Tecnología · <strong>2026</strong>
+        </p>
+        <p class="developer-credit">Desarrollado por <strong>Julio Zaldívar</strong> · aka <strong>m0m0</strong> · y <strong>Ale Escárcega</strong></p>
+      </div>
+    </footer>
+  </main>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

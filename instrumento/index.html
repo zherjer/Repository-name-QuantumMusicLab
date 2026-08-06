@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#02080d">
+  <title>QuantumMusicLab — Instrumento de cinco esferas v0.5.2</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./instrument.css">
+</head>
+<body>
+  <main class="instrument-shell">
+    <nav class="microsite-nav">
+      <a href="../">← Menú principal</a>
+      <span>Modo: Instrumento de cinco esferas · v0.5.2</span>
+      <a href="../explorar/">Explorar un qubit →</a>
+    </nav>
+
+    <header class="instrument-header">
+      <div>
+        <p class="eyebrow">QuantumMusicLab · Sonidos Cuánticos</p>
+        <h1>Instrumento de cinco esferas</h1>
+        <p>
+          Cada esfera representa un qubit musical. Mueve sus vectores y escucha
+          cómo cambian la nota, el timbre, el filtro, los efectos y el ritmo.
+        </p>
+      </div>
+
+      <div class="transport">
+        <button id="audioButton" type="button">🔊 Activar sonido</button>
+        <button id="playButton" type="button" disabled>▶ Iniciar loop</button>
+        <button id="stopButton" type="button" disabled>■ Detener</button>
+      </div>
+    </header>
+
+    <section class="instrument-status" aria-live="polite">
+      <div><span>Nota</span><strong id="noteReadout">Sol 4</strong></div>
+      <div><span>Onda</span><strong id="waveReadout">Seno</strong></div>
+      <div><span>Filtro</span><strong id="filterReadout">3.4 kHz</strong></div>
+      <div><span>Reverb</span><strong id="effectReadout">35 %</strong></div>
+      <div><span>Tempo</span><strong id="tempoReadout">100 BPM</strong></div>
+    </section>
+
+    <section id="sphereGrid" class="sphere-grid">
+      <article class="sphere-card note-card" data-qubit="0">
+        <header>
+          <div>
+            <span class="qubit-number">Q1</span>
+            <h2>Nota</h2>
+          </div>
+          <output id="q1State">x 0.00 · y 0.00 · z 1.00</output>
+        </header>
+        <div id="sphere1" class="sphere-view" aria-label="Esfera de Bloch para la nota"></div>
+        <div class="qubit-controls">
+          <label>x <input id="q1x" type="range" min="-1" max="1" step=".01" value="0"></label>
+          <label>y <input id="q1y" type="range" min="-1" max="1" step=".01" value="0"></label>
+          <label>z <input id="q1z" type="range" min="-1" max="1" step=".01" value="1"></label>
+        </div>
+        <p>El ángulo polar selecciona la altura musical.</p>
+      </article>
+
+      <article class="sphere-card timbre-card" data-qubit="1">
+        <header>
+          <div>
+            <span class="qubit-number">Q2</span>
+            <h2>Timbre</h2>
+          </div>
+          <output id="q2State">x 1.00 · y 0.00 · z 0.00</output>
+        </header>
+        <div id="sphere2" class="sphere-view" aria-label="Esfera de Bloch para el timbre"></div>
+        <div class="qubit-controls">
+          <label>x <input id="q2x" type="range" min="-1" max="1" step=".01" value="1"></label>
+          <label>y <input id="q2y" type="range" min="-1" max="1" step=".01" value="0"></label>
+          <label>z <input id="q2z" type="range" min="-1" max="1" step=".01" value="0"></label>
+        </div>
+        <p>La fase selecciona seno, triángulo, sierra o cuadrada.</p>
+      </article>
+
+      <article class="sphere-card filter-card" data-qubit="2">
+        <header>
+          <div>
+            <span class="qubit-number">Q3</span>
+            <h2>Filtro</h2>
+          </div>
+          <output id="q3State">x 0.00 · y 1.00 · z 0.00</output>
+        </header>
+        <div id="sphere3" class="sphere-view" aria-label="Esfera de Bloch para el filtro"></div>
+        <div class="qubit-controls">
+          <label>x <input id="q3x" type="range" min="-1" max="1" step=".01" value="0"></label>
+          <label>y <input id="q3y" type="range" min="-1" max="1" step=".01" value="1"></label>
+          <label>z <input id="q3z" type="range" min="-1" max="1" step=".01" value="0"></label>
+        </div>
+        <p>La coordenada y abre o cierra el brillo del sonido.</p>
+      </article>
+
+      <article class="sphere-card effects-card" data-qubit="3">
+        <header>
+          <div>
+            <span class="qubit-number">Q4</span>
+            <h2>Efectos</h2>
+          </div>
+          <output id="q4State">x 0.50 · y 0.50 · z 0.71</output>
+        </header>
+        <div id="sphere4" class="sphere-view" aria-label="Esfera de Bloch para los efectos"></div>
+        <div class="qubit-controls">
+          <label>x <input id="q4x" type="range" min="-1" max="1" step=".01" value=".5"></label>
+          <label>y <input id="q4y" type="range" min="-1" max="1" step=".01" value=".5"></label>
+          <label>z <input id="q4z" type="range" min="-1" max="1" step=".01" value=".71"></label>
+        </div>
+        <p>x controla delay y z controla reverberación.</p>
+      </article>
+
+      <article class="sphere-card rhythm-card" data-qubit="4">
+        <header>
+          <div>
+            <span class="qubit-number">Q5</span>
+            <h2>Ritmo</h2>
+          </div>
+          <output id="q5State">x −0.50 · y 0.50 · z 0.71</output>
+        </header>
+        <div id="sphere5" class="sphere-view" aria-label="Esfera de Bloch para el ritmo"></div>
+        <div class="qubit-controls">
+          <label>x <input id="q5x" type="range" min="-1" max="1" step=".01" value="-.5"></label>
+          <label>y <input id="q5y" type="range" min="-1" max="1" step=".01" value=".5"></label>
+          <label>z <input id="q5z" type="range" min="-1" max="1" step=".01" value=".71"></label>
+        </div>
+        <p>z cambia el tempo y x transforma la secuencia.</p>
+      </article>
+    </section>
+
+    <section class="sequencer-panel">
+      <header>
+        <div>
+          <p class="eyebrow">Secuencia cuántica</p>
+          <h2>Loop de ocho pasos</h2>
+        </div>
+        <button id="randomizeButton" type="button">✦ Nueva secuencia</button>
+      </header>
+
+      <div id="stepGrid" class="step-grid" aria-label="Secuenciador de ocho pasos">
+        <button class="step active" data-step="0">1</button>
+        <button class="step" data-step="1">2</button>
+        <button class="step active" data-step="2">3</button>
+        <button class="step" data-step="3">4</button>
+        <button class="step active" data-step="4">5</button>
+        <button class="step" data-step="5">6</button>
+        <button class="step active" data-step="6">7</button>
+        <button class="step" data-step="7">8</button>
+      </div>
+
+      <p id="instrumentMessage">
+        Activa el sonido, mueve una esfera y presiona “Iniciar loop”.
+      </p>
+    </section>
+
+    <footer>
+      <div>
+        <strong>Ecologías de la Imaginación</strong>
+        <span>Laboratorio Transversal de Arte, Ciencia y Tecnología · 2026</span>
+      </div>
+      <p>Desarrollado por <strong>Julio Zaldívar</strong> · aka <strong>m0m0</strong> · y <strong>Ale Escárcega</strong></p>
+    </footer>
+  </main>
+
+  <script type="module" src="./js/instrument.js"></script>
+</body>
+</html>
