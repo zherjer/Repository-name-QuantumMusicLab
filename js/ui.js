@@ -11,6 +11,22 @@ export function getElements() {
     updateButton: $("#updateVectorButton"),
     resetButton: $("#resetButton"),
     measureButton: $("#measureButton"),
+    resetMeasurementsButton: $("#resetMeasurementsButton"),
+    savePreparedStateButton: $("#savePreparedStateButton"),
+    restorePreparedStateButton: $("#restorePreparedStateButton"),
+    preparedStateLabel: $("#preparedStateLabel"),
+    shotsInput: $("#shotsInput"),
+    runExperimentButton: $("#runExperimentButton"),
+    experiment0Bar: $("#experiment0Bar"),
+    experiment1Bar: $("#experiment1Bar"),
+    experiment0Value: $("#experiment0Value"),
+    experiment1Value: $("#experiment1Value"),
+    measurementResult: $("#measurementResult"),
+    count0Value: $("#count0Value"),
+    count1Value: $("#count1Value"),
+    countTotalValue: $("#countTotalValue"),
+    count0Percent: $("#count0Percent"),
+    count1Percent: $("#count1Percent"),
     audioButton: $("#audioButton"),
     filterSlider: $("#filterSlider"),
     volumeSlider: $("#volumeSlider"),
@@ -134,4 +150,33 @@ export function updateSoundReadout(elements, soundInfo) {
   elements.noteValue.value = soundInfo.note;
   elements.frequencyValue.value = soundInfo.frequency;
   elements.waveValue.value = soundInfo.wave;
+}
+
+
+export function updateMeasurementReadout(elements, counts, lastResult = null) {
+  const total = counts.zero + counts.one;
+  const p0 = total ? counts.zero / total * 100 : 0;
+  const p1 = total ? counts.one / total * 100 : 0;
+  elements.count0Value.textContent = counts.zero;
+  elements.count1Value.textContent = counts.one;
+  elements.countTotalValue.textContent = total;
+  elements.count0Percent.textContent = `${p0.toFixed(1)} %`;
+  elements.count1Percent.textContent = `${p1.toFixed(1)} %`;
+  elements.measurementResult.textContent = lastResult === null ? "—" : (lastResult === 0 ? "|0⟩" : "|1⟩");
+  if (lastResult === null) delete elements.measurementResult.dataset.result;
+  else elements.measurementResult.dataset.result = String(lastResult);
+}
+
+export function updatePreparedStateReadout(elements, vector) {
+  elements.preparedStateLabel.textContent = `x=${vector.x.toFixed(2)}, y=${vector.y.toFixed(2)}, z=${vector.z.toFixed(2)}`;
+}
+
+export function updateExperimentReadout(elements, result0, result1) {
+  const total = result0 + result1;
+  const p0 = total ? result0 / total * 100 : 0;
+  const p1 = total ? result1 / total * 100 : 0;
+  elements.experiment0Bar.style.width = `${p0}%`;
+  elements.experiment1Bar.style.width = `${p1}%`;
+  elements.experiment0Value.value = `${result0} · ${p0.toFixed(1)} %`;
+  elements.experiment1Value.value = `${result1} · ${p1.toFixed(1)} %`;
 }

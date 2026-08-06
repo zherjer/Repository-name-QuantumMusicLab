@@ -809,3 +809,30 @@ input[type="range"] {
 @media(max-width:1024px){.dashboard{grid-template-columns:minmax(280px,320px) minmax(0,1fr)}.right-column{grid-template-columns:1fr 1fr}.footer-panel{grid-template-columns:1fr}.project-credit{padding-left:0;grid-template-columns:1fr 1fr}}
 @media(max-width:760px){.left-column{display:flex}.bloch-container{aspect-ratio:1/1;min-height:390px;max-height:none}.compact-coordinate{grid-template-columns:24px 68px minmax(100px,1fr)}.footer-panel,.project-credit{grid-template-columns:1fr}}
 @media(max-width:520px){.amplitude-grid,.special-states-panel .special-grid{grid-template-columns:1fr}.probability-row{grid-template-columns:50px minmax(80px,1fr) 52px}.compact-coordinate{grid-template-columns:22px 62px minmax(80px,1fr)}}
+
+.active-measurement{border-color:rgba(189,85,255,.9);color:#e5c5ff;background:rgba(189,85,255,.13);cursor:pointer;opacity:1}
+.active-measurement:disabled{cursor:wait;opacity:.65}
+.measurement-results{margin-top:10px;padding:11px 12px;border:1px solid rgba(0,201,255,.24);border-radius:11px;background:rgba(0,201,255,.035)}
+.measurement-summary{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.measurement-summary>div{display:flex;flex-direction:column;gap:4px}
+.measurement-label{color:#8da1a9;font-size:.73rem}
+#measurementResult{color:var(--green);font-size:1.35rem}
+#measurementResult[data-result="1"]{color:var(--pink)}
+#resetMeasurementsButton{border:1px solid rgba(110,190,205,.26);border-radius:8px;padding:7px 9px;color:#bcc9ce;background:rgba(255,255,255,.035);cursor:pointer;font-size:.75rem}
+.measurement-counts{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+.count-card{padding:8px;border:1px solid rgba(110,190,205,.18);border-radius:9px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:3px 8px}
+.count-card strong{grid-row:1/span 2;grid-column:2;font-size:1.15rem}.count-card small{color:#81959d;font-size:.66rem}
+.count-zero span,.count-zero strong{color:var(--cyan)}.count-one span,.count-one strong{color:var(--pink)}.count-total span,.count-total strong{color:var(--green)}
+.developer-credit{grid-column:1/-1;margin-top:8px!important;color:#8fa2aa!important;font-size:.78rem;letter-spacing:.02em}
+.developer-credit strong{color:#dce7ea!important}
+@media(max-width:520px){.measurement-counts{grid-template-columns:1fr}}
+
+.prepared-state-box{display:grid;grid-template-columns:minmax(120px,1fr) auto auto;gap:8px;align-items:center;margin-top:10px;padding:9px;border:1px solid rgba(189,85,255,.20);border-radius:9px;background:rgba(189,85,255,.035)}
+.prepared-state-box>div{display:flex;flex-direction:column;gap:3px;min-width:0}#preparedStateLabel{color:#e3d5ee;font-size:.76rem;overflow-wrap:anywhere}
+#savePreparedStateButton,#restorePreparedStateButton,#runExperimentButton{border:1px solid rgba(0,239,157,.32);border-radius:8px;padding:7px 9px;color:var(--green);background:rgba(0,239,157,.055);cursor:pointer;font-size:.73rem}
+#restorePreparedStateButton{color:#d7c3e6;border-color:rgba(189,85,255,.35);background:rgba(189,85,255,.055)}
+.shots-panel{display:grid;grid-template-columns:minmax(140px,1fr) auto;gap:10px;align-items:end;margin-top:12px;padding-top:11px;border-top:1px solid rgba(56,175,171,.18)}
+.shots-control{display:flex;flex-direction:column;gap:5px}.shots-control label{color:#9fb0b7;font-size:.74rem}#shotsInput{width:100%;border:1px solid rgba(110,190,205,.22);border-radius:8px;padding:7px 9px;color:var(--text);background:#061016}
+#runExperimentButton:disabled{cursor:wait;opacity:.65}.experiment-results{margin-top:10px}.experiment-row{display:grid;grid-template-columns:38px minmax(100px,1fr) 84px;align-items:center;gap:8px;margin:8px 0;font-size:.76rem}
+.experiment-track{height:10px;overflow:hidden;border:1px solid rgba(110,190,205,.18);border-radius:999px;background:rgba(255,255,255,.045)}.experiment-fill{height:100%;width:0%;transition:width .25s ease}.experiment-zero{background:linear-gradient(90deg,var(--cyan),var(--green))}.experiment-one{background:linear-gradient(90deg,var(--purple),var(--pink))}.experiment-row output{text-align:right;white-space:nowrap}
+@media(max-width:760px){.prepared-state-box{grid-template-columns:1fr 1fr}.prepared-state-box>div{grid-column:1/-1}}@media(max-width:520px){.shots-panel,.prepared-state-box{grid-template-columns:1fr}}

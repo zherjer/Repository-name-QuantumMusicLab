@@ -8,12 +8,19 @@ import {
   getElements,
   syncInputs,
   updateReadout,
-  updateSoundReadout
+  updateSoundReadout,
+  updateMeasurementReadout,
+  updatePreparedStateReadout,
+  updateExperimentReadout
 } from "./ui.js";
 
 const elements = getElements();
 const state = {
-  vector: new THREE.Vector3(INITIAL_VECTOR.x, INITIAL_VECTOR.y, INITIAL_VECTOR.z).normalize()
+  vector: new THREE.Vector3(INITIAL_VECTOR.x, INITIAL_VECTOR.y, INITIAL_VECTOR.z).normalize(),
+  measurements: { zero: 0, one: 0 },
+  preparedVector: new THREE.Vector3(INITIAL_VECTOR.x, INITIAL_VECTOR.y, INITIAL_VECTOR.z).normalize(),
+  measuring: false,
+  runningExperiment: false
 };
 
 const soundControls = () => ({
@@ -118,6 +125,79 @@ document.querySelectorAll("[data-gate]").forEach(button => {
   });
 });
 
+function savePreparedState() {
+  state.preparedVector.copy(state.vector).normalize();
+  updatePreparedStateReadout(elements, state.preparedVector);
+  elements.gateMessage.textContent = "Se guardó el estado actual como estado preparado.";
+}
+
+function restorePreparedState({ play = true } = {}) {
+  setVector(state.preparedVector.clone(), { sync: true, play });
+  elements.gateMessage.textContent = "Se restauró el estado preparado.";
+}
+
+function probabilityOfZero(vector) {
+  return (1 + THREE.MathUtils.clamp(vector.z, -1, 1)) / 2;
+}
+
+async function measureQubit() {
+  if (state.measuring) return;
+  state.measuring = true;
+  elements.measureButton.disabled = true;
+  elements.measureButton.textContent = "Midiendo…";
+
+  const result = Math.random() < probabilityOfZero(state.vector) ? 0 : 1;
+  await new Promise(resolve => setTimeout(resolve, 350));
+
+  if (result === 0) {
+    state.measurements.zero += 1;
+    setVector(new THREE.Vector3(0, 0, 1), { sync: true, play: true });
+    elements.gateMessage.textContent = "Resultado |0⟩: el vector colapsó al polo norte.";
+  } else {
+    state.measurements.one += 1;
+    setVector(new THREE.Vector3(0, 0, -1), { sync: true, play: true });
+    elements.gateMessage.textContent = "Resultado |1⟩: el vector colapsó al polo sur.";
+  }
+
+  updateMeasurementReadout(elements, state.measurements, result);
+  elements.measureButton.disabled = false;
+  elements.measureButton.textContent = "Medir qubit";
+  state.measuring = false;
+}
+
+elements.measureButton.addEventListener("click", measureQubit);
+elements.resetMeasurementsButton.addEventListener("click", () => {
+  state.measurements.zero = 0;
+  state.measurements.one = 0;
+  updateMeasurementReadout(elements, state.measurements, null);
+  updateExperimentReadout(elements, 0, 0);
+  elements.gateMessage.textContent = "Se reinició el conteo de mediciones.";
+});
+
+elements.savePreparedStateButton.addEventListener("click", savePreparedState);
+elements.restorePreparedStateButton.addEventListener("click", () => restorePreparedState());
+
+elements.runExperimentButton.addEventListener("click", async () => {
+  if (state.runningExperiment) return;
+  const shots = Math.max(1, Math.min(10000, Number(elements.shotsInput.value) || 1));
+  elements.shotsInput.value = shots;
+  state.runningExperiment = true;
+  elements.runExperimentButton.disabled = true;
+  elements.runExperimentButton.textContent = "Ejecutando…";
+  const p0 = probabilityOfZero(state.preparedVector);
+  let result0 = 0, result1 = 0;
+  for (let i = 0; i < shots; i++) { if (Math.random() < p0) result0++; else result1++; }
+  await new Promise(resolve => setTimeout(resolve, Math.min(800, 150 + shots * 0.4)));
+  updateExperimentReadout(elements, result0, result1);
+  elements.gateMessage.textContent = `Experimento completado: ${result0} resultados |0⟩ y ${result1} resultados |1⟩.`;
+  elements.runExperimentButton.disabled = false;
+  elements.runExperimentButton.textContent = "Ejecutar experimento";
+  state.runningExperiment = false;
+});
+
 initResponsiveStatus(elements.screenMode);
 syncInputs(elements, state.vector);
+updateMeasurementReadout(elements, state.measurements, null);
+updatePreparedStateReadout(elements, state.preparedVector);
+updateExperimentReadout(elements, 0, 0);
 refresh(false);

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#02080d">
-  <title>QuantumMusicLab — Fase 1 v0.3.4</title>
+  <title>QuantumMusicLab — Fase 1 v0.4.1</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="./css/styles.css">
 </head>
@@ -14,7 +14,7 @@
       <div class="brand">
         <strong>QuantumMusicLab</strong>
         <span class="separator">|</span>
-        <span>Sintetizador Cuántico – Fase 1 v0.3.4</span>
+        <span>Sintetizador Cuántico – Fase 1 v0.4.1</span>
       </div>
 
       <div class="topbar-actions">
@@ -98,8 +98,33 @@
           <div class="coordinate-actions">
             <button id="updateVectorButton" class="primary-button" type="button">Actualizar coordenadas</button>
             <button id="resetButton" class="secondary-button" type="button">↻ Reiniciar</button>
-            <button id="measureButton" class="measurement-button" type="button" disabled>Medir qubit · v0.4</button>
+            <button id="measureButton" class="measurement-button active-measurement" type="button">Medir qubit</button>
           </div>
+
+          <section class="measurement-results" aria-live="polite">
+            <div class="measurement-summary">
+              <div><span class="measurement-label">Última medición</span><strong id="measurementResult">—</strong></div>
+              <button id="resetMeasurementsButton" type="button">Reiniciar conteo</button>
+            </div>
+            <div class="prepared-state-box">
+              <div><span class="measurement-label">Estado preparado</span><strong id="preparedStateLabel">Estado inicial</strong></div>
+              <button id="savePreparedStateButton" type="button">Guardar estado actual</button>
+              <button id="restorePreparedStateButton" type="button">Restaurar estado</button>
+            </div>
+            <div class="measurement-counts">
+              <div class="count-card count-zero"><span>|0⟩</span><strong id="count0Value">0</strong><small id="count0Percent">0.0 %</small></div>
+              <div class="count-card count-one"><span>|1⟩</span><strong id="count1Value">0</strong><small id="count1Percent">0.0 %</small></div>
+              <div class="count-card count-total"><span>Total</span><strong id="countTotalValue">0</strong><small>mediciones</small></div>
+            </div>
+            <div class="shots-panel">
+              <div class="shots-control"><label for="shotsInput">Número de mediciones</label><input id="shotsInput" type="number" min="1" max="10000" step="1" value="100"></div>
+              <button id="runExperimentButton" type="button">Ejecutar experimento</button>
+            </div>
+            <div class="experiment-results">
+              <div class="experiment-row"><span>|0⟩</span><div class="experiment-track"><div id="experiment0Bar" class="experiment-fill experiment-zero"></div></div><output id="experiment0Value">0 · 0.0 %</output></div>
+              <div class="experiment-row"><span>|1⟩</span><div class="experiment-track"><div id="experiment1Bar" class="experiment-fill experiment-one"></div></div><output id="experiment1Value">0 · 0.0 %</output></div>
+            </div>
+          </section>
 
           <div class="hidden-current-values" aria-hidden="true">
             <output id="xValue">0.50</output>
@@ -220,6 +245,7 @@
         <p>Proyecto en el marco de Ecologías de la Imaginación —<br>
           Laboratorio Transversal de Arte, Ciencia y Tecnología · <strong>2026</strong>
         </p>
+        <p class="developer-credit">Desarrollado por <strong>Julio Zaldívar</strong> · aka <strong>m0m0</strong></p>
       </div>
     </footer>
   </main>
