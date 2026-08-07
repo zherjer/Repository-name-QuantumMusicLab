@@ -116,3 +116,101 @@ footer p{margin:0}footer strong{color:var(--text)}
   .step-grid{grid-template-columns:repeat(4,1fr)}
   footer{flex-direction:column}
 }
+
+
+/* =========================================================
+   v0.5.3 Stability — transporte y estados del secuenciador
+   ========================================================= */
+
+#pauseButton {
+  border-color: rgba(255, 212, 0, .45);
+  color: var(--yellow);
+}
+
+#resetButton {
+  border-color: rgba(0, 201, 255, .45);
+  color: var(--cyan);
+}
+
+.step {
+  position: relative;
+  transition: border-color .1s ease, background .1s ease, color .1s ease, box-shadow .1s ease;
+}
+
+.step.active {
+  border-color: var(--green);
+  color: var(--green);
+  background: rgba(0,239,157,.10);
+}
+
+/* El paso que se reproduce NO sustituye el estado activo.
+   Solo recibe un contorno amarillo adicional. */
+.step.playing {
+  box-shadow:
+    0 0 0 2px var(--yellow) inset,
+    0 0 15px rgba(255,212,0,.22);
+  color: var(--yellow);
+}
+
+.step.active.playing {
+  background: rgba(0,239,157,.13);
+  border-color: var(--green);
+}
+
+.sequencer-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: .72rem;
+}
+
+.sequencer-legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  background: rgba(255,255,255,.035);
+  border: 1px solid rgba(110,190,205,.2);
+}
+
+.legend-swatch.enabled {
+  border-color: var(--green);
+  background: rgba(0,239,157,.12);
+}
+
+.legend-swatch.current {
+  border-color: var(--yellow);
+  box-shadow: 0 0 0 2px var(--yellow) inset;
+}
+
+@media (max-width: 620px) {
+  .transport {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .transport button {
+    width: 100%;
+  }
+}
+
+
+/* v0.5.4 — diagnóstico de estabilidad */
+.stability-note {
+  margin: 5px 0 0;
+  color: #627981;
+  font-size: .67rem;
+}
+
+.sphere-view canvas {
+  will-change: transform;
+}

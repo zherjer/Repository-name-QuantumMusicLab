@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#02080d">
-  <title>QuantumMusicLab — Instrumento de cinco esferas v0.5.2</title>
+  <title>QuantumMusicLab — Instrumento de cinco esferas v0.5.4</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="./instrument.css">
 </head>
@@ -12,7 +12,7 @@
   <main class="instrument-shell">
     <nav class="microsite-nav">
       <a href="../">← Menú principal</a>
-      <span>Modo: Instrumento de cinco esferas · v0.5.2</span>
+      <span>Modo: Instrumento de cinco esferas · v0.5.4</span>
       <a href="../explorar/">Explorar un qubit →</a>
     </nav>
 
@@ -28,8 +28,10 @@
 
       <div class="transport">
         <button id="audioButton" type="button">🔊 Activar sonido</button>
-        <button id="playButton" type="button" disabled>▶ Iniciar loop</button>
+        <button id="playButton" type="button" disabled>▶ Iniciar</button>
+        <button id="pauseButton" type="button" disabled>⏸ Pausar</button>
         <button id="stopButton" type="button" disabled>■ Detener</button>
+        <button id="resetButton" type="button">↻ Reiniciar</button>
       </div>
     </header>
 
@@ -124,7 +126,7 @@
           <label>y <input id="q5y" type="range" min="-1" max="1" step=".01" value=".5"></label>
           <label>z <input id="q5z" type="range" min="-1" max="1" step=".01" value=".71"></label>
         </div>
-        <p>z cambia el tempo y x transforma la secuencia.</p>
+        <p>z cambia el tempo y x modifica la duración de las notas; no altera los pasos activos.</p>
       </article>
     </section>
 
@@ -148,8 +150,17 @@
         <button class="step" data-step="7">8</button>
       </div>
 
+      <div class="sequencer-legend" aria-label="Leyenda del secuenciador">
+        <span><i class="legend-swatch enabled"></i> Paso activo</span>
+        <span><i class="legend-swatch current"></i> Paso en reproducción</span>
+        <span><i class="legend-swatch disabled"></i> Paso desactivado</span>
+      </div>
+
       <p id="instrumentMessage">
-        Activa el sonido, mueve una esfera y presiona “Iniciar loop”.
+        Activa el sonido, mueve una esfera y presiona “Iniciar”.
+      </p>
+      <p class="stability-note">
+        v0.5.4 · El movimiento visual y el motor de audio funcionan en ciclos independientes para evitar saturación durante movimientos rápidos.
       </p>
     </section>
 

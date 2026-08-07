@@ -19,17 +19,22 @@ const initialVectors = [
   new THREE.Vector3(-.5, .5, .71).normalize()
 ];
 
+const DEFAULT_PATTERN = [true, false, true, false, true, false, true, false];
+
 const state = {
   vectors: initialVectors.map(vector => vector.clone()),
+  pattern: [...DEFAULT_PATTERN],
   audioReady: false,
-  loopRunning: false,
+  transportState: "stopped", // stopped | running | paused
   currentStep: -1
 };
 
 const elements = {
   audioButton: document.querySelector("#audioButton"),
   playButton: document.querySelector("#playButton"),
+  pauseButton: document.querySelector("#pauseButton"),
   stopButton: document.querySelector("#stopButton"),
+  resetButton: document.querySelector("#resetButton"),
   randomizeButton: document.querySelector("#randomizeButton"),
   message: document.querySelector("#instrumentMessage"),
   noteReadout: document.querySelector("#noteReadout"),
@@ -49,6 +54,8 @@ const WAVE_LABELS = {
   sawtooth: "Sierra",
   square: "Cuadrada"
 };
+const DURATION_VALUES = ["16n", "8n", "4n"];
+const DURATION_LABELS = ["1/16", "1/8", "1/4"];
 
 const filter = new Tone.Filter({ frequency: 3400, type: "lowpass", rolloff: -12 });
 const delay = new Tone.FeedbackDelay({ delayTime: "8n", feedback: .2, wet: .15 });
@@ -64,15 +71,21 @@ function blochToMusic() {
   const [q1, q2, q3, q4, q5] = state.vectors;
 
   const noteIndex = Math.round((q1.z + 1) * .5 * (TONE_NOTES.length - 1));
+
   let phi = Math.atan2(q2.y, q2.x);
   if (phi < 0) phi += Math.PI * 2;
   const waveIndex = Math.floor(phi / (Math.PI * 2) * 4) % 4;
   const wave = WAVE_TYPES[waveIndex];
 
   const cutoff = Math.round(350 + ((q3.y + 1) / 2) * 7200);
-  const delayWet = clamp((q4.x + 1) / 2 * .55, 0, .55);
-  const reverbWet = clamp((q4.z + 1) / 2 * .75, 0, .75);
+
+  // Q4 se limita exclusivamente a efectos.
+  const delayWet = clamp((q4.x + 1) / 2 * .50, 0, .50);
+  const reverbWet = clamp((q4.z + 1) / 2 * .65, 0, .65);
+
+  // Q5 se limita a tiempo/duración. No modifica state.pattern.
   const tempo = Math.round(55 + ((q5.z + 1) / 2) * 125);
+  const durationIndex = clamp(Math.round(((q5.x + 1) / 2) * (DURATION_VALUES.length - 1)), 0, DURATION_VALUES.length - 1);
 
   return {
     noteIndex,
@@ -82,7 +95,9 @@ function blochToMusic() {
     cutoff,
     delayWet,
     reverbWet,
-    tempo
+    tempo,
+    duration: DURATION_VALUES[durationIndex],
+    durationLabel: DURATION_LABELS[durationIndex]
   };
 }
 
@@ -98,12 +113,34 @@ function applyMusicState(playPreview = false) {
   elements.noteReadout.textContent = music.noteLabel;
   elements.waveReadout.textContent = WAVE_LABELS[music.wave];
   elements.filterReadout.textContent = `${(music.cutoff / 1000).toFixed(1)} kHz`;
-  elements.effectReadout.textContent = `${Math.round(music.reverbWet * 100)} %`;
-  elements.tempoReadout.textContent = `${music.tempo} BPM`;
+  elements.effectReadout.textContent =
+    `R ${Math.round(music.reverbWet * 100)} % · D ${Math.round(music.delayWet * 100)} %`;
+  elements.tempoReadout.textContent = `${music.tempo} BPM · ${music.durationLabel}`;
 
-  if (state.audioReady && playPreview && !state.loopRunning) {
-    synth.triggerAttackRelease(music.note, "8n");
+  if (state.audioReady && playPreview && state.transportState !== "running") {
+    synth.triggerAttackRelease(music.note, music.duration);
   }
+}
+
+function renderSteps() {
+  elements.steps.forEach((step, index) => {
+    step.classList.toggle("active", state.pattern[index]);
+    step.classList.toggle("playing", state.currentStep === index && state.transportState === "running");
+    step.setAttribute("aria-pressed", String(state.pattern[index]));
+  });
+}
+
+function updateTransportButtons() {
+  const audio = state.audioReady;
+  const running = state.transportState === "running";
+  const paused = state.transportState === "paused";
+
+  elements.playButton.disabled = !audio || running;
+  elements.pauseButton.disabled = !audio || !running;
+  elements.stopButton.disabled = !audio || state.transportState === "stopped";
+
+  elements.playButton.textContent = paused ? "▶ Continuar" : "▶ Iniciar";
+  elements.pauseButton.textContent = "⏸ Pausar";
 }
 
 class MiniBlochSphere {
@@ -213,6 +250,7 @@ class MiniBlochSphere {
 
   bindPointer() {
     const canvas = this.renderer.domElement;
+
     canvas.addEventListener("pointerdown", event => {
       const vector = this.pointerToBloch(event);
       if (!vector) return;
@@ -245,6 +283,12 @@ class MiniBlochSphere {
     this.onChange(this.index, this.target.clone(), playPreview);
   }
 
+  forceVector(vector) {
+    if (vector.lengthSq() < 1e-8) return;
+    this.vector.copy(vector).normalize();
+    this.target.copy(vector).normalize();
+  }
+
   resize() {
     const width = Math.max(1, this.container.clientWidth);
     const height = Math.max(1, this.container.clientHeight);
@@ -253,8 +297,36 @@ class MiniBlochSphere {
     this.renderer.setSize(width, height, false);
   }
 
+  slerpUnitVectors(from, to, amount) {
+    const dot = THREE.MathUtils.clamp(from.dot(to), -1, 1);
+
+    if (dot > .9995) {
+      return from.clone().lerp(to, amount).normalize();
+    }
+
+    if (dot < -.9995) {
+      const reference = Math.abs(from.x) < .8
+        ? new THREE.Vector3(1, 0, 0)
+        : new THREE.Vector3(0, 1, 0);
+      const axis = from.clone().cross(reference).normalize();
+      return from.clone().applyAxisAngle(axis, Math.PI * amount).normalize();
+    }
+
+    const angle = Math.acos(dot);
+    const sinAngle = Math.sin(angle);
+    return from.clone()
+      .multiplyScalar(Math.sin((1 - amount) * angle) / sinAngle)
+      .add(to.clone().multiplyScalar(Math.sin(amount * angle) / sinAngle))
+      .normalize();
+  }
+
   animate() {
-    this.vector.lerp(this.target, .24).normalize();
+    if (this.vector.angleTo(this.target) < .002) {
+      this.vector.copy(this.target);
+    } else {
+      this.vector.copy(this.slerpUnitVectors(this.vector, this.target, .28));
+    }
+
     const sceneVector = this.blochToScene(this.vector);
     this.arrow.setDirection(sceneVector);
     this.tip.position.copy(sceneVector).multiplyScalar(1.32);
@@ -277,9 +349,11 @@ for (let index = 0; index < 5; index++) {
 function updateQubitControls(index) {
   const vector = state.vectors[index];
   const number = index + 1;
+
   document.querySelector(`#q${number}x`).value = vector.x.toFixed(2);
   document.querySelector(`#q${number}y`).value = vector.y.toFixed(2);
   document.querySelector(`#q${number}z`).value = vector.z.toFixed(2);
+
   document.querySelector(`#q${number}State`).textContent =
     `x ${vector.x.toFixed(2)} · y ${vector.y.toFixed(2)} · z ${vector.z.toFixed(2)}`;
 }
@@ -292,6 +366,7 @@ function handleVectorChange(index, vector, playPreview = false) {
 
 for (let index = 0; index < 5; index++) {
   const number = index + 1;
+
   ["x","y","z"].forEach(axis => {
     document.querySelector(`#q${number}${axis}`).addEventListener("change", () => {
       const vector = new THREE.Vector3(
@@ -299,7 +374,13 @@ for (let index = 0; index < 5; index++) {
         Number(document.querySelector(`#q${number}y`).value),
         Number(document.querySelector(`#q${number}z`).value)
       );
-      if (vector.lengthSq() < 1e-8) return;
+
+      if (vector.lengthSq() < 1e-8) {
+        elements.message.textContent = `Q${number}: el vector no puede ser (0,0,0).`;
+        updateQubitControls(index);
+        return;
+      }
+
       spheres[index].setVector(vector.normalize(), true);
     });
   });
@@ -309,59 +390,122 @@ elements.audioButton.addEventListener("click", async () => {
   await Tone.start();
   state.audioReady = true;
   elements.audioButton.textContent = "🔊 Sonido activado";
-  elements.playButton.disabled = false;
-  elements.stopButton.disabled = false;
   applyMusicState(true);
-  elements.message.textContent = "Sonido activado. Mueve las esferas o inicia el loop.";
+  updateTransportButtons();
+  elements.message.textContent = "Sonido activado. El instrumento está listo.";
 });
 
-elements.steps.forEach(step => {
-  step.addEventListener("click", () => step.classList.toggle("active"));
+elements.steps.forEach((step, index) => {
+  step.addEventListener("click", () => {
+    state.pattern[index] = !state.pattern[index];
+    renderSteps();
+    elements.message.textContent =
+      `Paso ${index + 1} ${state.pattern[index] ? "activado" : "desactivado"}.`;
+  });
 });
 
 elements.randomizeButton.addEventListener("click", () => {
-  elements.steps.forEach(step => {
-    step.classList.toggle("active", Math.random() > .45);
-  });
+  state.pattern = state.pattern.map(() => Math.random() > .45);
+
+  // Garantiza al menos un paso activo para evitar un loop silencioso accidental.
+  if (!state.pattern.some(Boolean)) {
+    state.pattern[Math.floor(Math.random() * state.pattern.length)] = true;
+  }
+
+  renderSteps();
   elements.message.textContent = "Se creó una nueva secuencia de ocho pasos.";
 });
 
+// La secuencia se agenda UNA sola vez. El transporte decide si corre,
+// se pausa, continúa o vuelve al inicio.
 const sequence = new Tone.Sequence((time, stepIndex) => {
   state.currentStep = stepIndex;
-  requestAnimationFrame(() => {
-    elements.steps.forEach((step, index) => step.classList.toggle("playing", index === stepIndex));
-  });
 
-  const step = elements.steps[stepIndex];
-  if (!step.classList.contains("active")) return;
+  requestAnimationFrame(renderSteps);
+
+  if (!state.pattern[stepIndex]) return;
 
   const music = blochToMusic();
-  const rhythmVector = state.vectors[4];
-  const patternDepth = Math.round(((rhythmVector.x + 1) / 2) * 5);
-  const offsetPattern = [0, 2, 4, 7, 9, 12];
-  const offset = offsetPattern[(stepIndex + patternDepth) % offsetPattern.length];
-  const midi = Tone.Frequency(music.note).toMidi() + offset;
+
+  // Patrón melódico fijo e independiente de Q4/Q5.
+  // Las esferas cambian el sonido y el tiempo, no los pasos activos.
+  const melodicOffsets = [0, 2, 4, 7, 4, 2, 9, 7];
+  const midi = Tone.Frequency(music.note).toMidi() + melodicOffsets[stepIndex];
   const note = Tone.Frequency(midi, "midi").toNote();
 
-  synth.triggerAttackRelease(note, "16n", time, .75);
+  synth.triggerAttackRelease(note, music.duration, time, .75);
 }, [...Array(8).keys()], "8n");
 
+// Importante: se inicia una sola vez en la línea temporal.
+// Nunca se llama sequence.stop() durante el uso normal.
+sequence.start(0);
+
 elements.playButton.addEventListener("click", async () => {
-  if (!state.audioReady) return;
-  state.loopRunning = true;
+  if (!state.audioReady || state.transportState === "running") return;
+
+  await Tone.start();
+
   Tone.Transport.start();
-  sequence.start(0);
-  elements.message.textContent = "El loop está sonando. Cambia cualquier esfera en tiempo real.";
+  state.transportState = "running";
+  updateTransportButtons();
+  renderSteps();
+
+  elements.message.textContent =
+    state.currentStep >= 0 ? "El loop continúa desde la posición pausada." : "Loop iniciado.";
+});
+
+elements.pauseButton.addEventListener("click", () => {
+  if (state.transportState !== "running") return;
+
+  Tone.Transport.pause();
+  state.transportState = "paused";
+  state.currentStep = -1;
+
+  updateTransportButtons();
+  renderSteps();
+  elements.message.textContent = "Loop pausado. Presiona Continuar para seguir desde la misma posición.";
 });
 
 elements.stopButton.addEventListener("click", () => {
-  state.loopRunning = false;
-  sequence.stop();
+  if (state.transportState === "stopped") return;
+
   Tone.Transport.stop();
   Tone.Transport.position = 0;
-  elements.steps.forEach(step => step.classList.remove("playing"));
-  elements.message.textContent = "Loop detenido.";
+  state.transportState = "stopped";
+  state.currentStep = -1;
+
+  updateTransportButtons();
+  renderSteps();
+  elements.message.textContent = "Loop detenido. Al iniciar nuevamente comenzará desde el paso 1.";
 });
 
-for (let index = 0; index < 5; index++) updateQubitControls(index);
+elements.resetButton.addEventListener("click", () => {
+  Tone.Transport.stop();
+  Tone.Transport.position = 0;
+
+  state.transportState = "stopped";
+  state.currentStep = -1;
+  state.pattern = [...DEFAULT_PATTERN];
+
+  state.vectors = initialVectors.map(vector => vector.clone());
+
+  spheres.forEach((sphere, index) => {
+    sphere.forceVector(state.vectors[index]);
+    updateQubitControls(index);
+  });
+
+  applyMusicState(false);
+  renderSteps();
+  updateTransportButtons();
+
+  elements.message.textContent =
+    "Instrumento reiniciado: esferas, patrón y transporte regresaron al estado inicial.";
+});
+
+for (let index = 0; index < 5; index++) {
+  updateQubitControls(index);
+}
+
+renderSteps();
+updateTransportButtons();
 applyMusicState(false);

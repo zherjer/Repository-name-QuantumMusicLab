@@ -1,83 +1,51 @@
-# QuantumMusicLab v0.5.2
+# QuantumMusicLab v0.5.4 — Stability Hotfix
 
 **Desarrollado por Julio Zaldívar · aka m0m0 · y Ale Escárcega**
 
-Micrositio educativo del proyecto **Ecologías de la Imaginación — Laboratorio Transversal de Arte, Ciencia y Tecnología, 2026**.
+Esta versión corrige una saturación detectada al mover bruscamente los vectores
+de las esferas durante la reproducción.
 
-## Nueva arquitectura
+## Causa identificada
 
-```text
-QuantumMusicLab/
-├── index.html
-├── explorar/
-│   ├── index.html
-│   ├── css/
-│   ├── js/
-│   ├── assets/
-│   └── docs/
-├── instrumento/
-│   ├── index.html
-│   └── instrument.css
-├── shared/
-│   ├── css/
-│   └── assets/
-└── docs/
-```
+Un movimiento rápido del mouse puede generar cientos de eventos `pointermove`
+por segundo. Cada evento actualizaba inmediatamente parámetros de Tone.js:
 
-## Rutas
+- forma de onda;
+- filtro;
+- delay;
+- reverb;
+- tempo.
 
-- `/quantum-music-lab/`: menú principal.
-- `/quantum-music-lab/explorar/`: aplicación de un qubit.
-- `/quantum-music-lab/instrumento/`: instrumento de cinco esferas.
+Las llamadas `rampTo()` se acumulaban y podían saturar el hilo principal y el
+motor de audio del navegador.
 
-Todas las rutas son relativas, por lo que el micrositio puede alojarse dentro de:
+El patrón de ocho pasos no estaba siendo modificado por Q4; al bloquearse el
+hilo de renderizado, los estados visuales dejaban de refrescarse y podía parecer
+que los pasos desaparecían progresivamente.
 
-```text
-/proyectos/quantum-music-lab/
-```
+## Correcciones v0.5.4
 
-sin depender de la raíz del dominio.
+- Visualización y audio desacoplados.
+- El vector sigue el mouse a frecuencia de pantalla.
+- El motor de audio se limita a aproximadamente 29 actualizaciones por segundo.
+- Se cancelan automatizaciones anteriores antes de programar un nuevo valor.
+- La forma de onda solo se reconstruye cuando realmente cambia.
+- El preview sonoro solo se dispara al finalizar el movimiento.
+- Q4 continúa limitado a delay y reverb.
+- Q5 continúa limitado a tempo y duración.
+- Protección adicional para mantener siempre un patrón de ocho pasos.
+- Reiniciar cancela automatizaciones de audio pendientes.
 
-## Ejecución local
+## Prueba crítica
 
-```bat
-cd /d D:\Proyectos\QuantumMusicLab
-python -m http.server 8000
-```
+1. Activar sonido.
+2. Iniciar loop.
+3. Arrastrar Q4 rápidamente de extremo a extremo durante 15–20 segundos.
+4. Hacer lo mismo con Q1, Q2, Q3 y Q5.
+5. Confirmar que los ocho botones conservan su patrón.
+6. Detener.
+7. Iniciar nuevamente.
+8. Pausar y continuar.
+9. Reiniciar.
 
-Abrir:
-
-```text
-http://localhost:8000
-```
-
-## Git sugerido
-
-```bat
-git add .
-git commit -m "feat: agrega menu principal y arquitectura de micrositio"
-git tag -a v0.5.2 -m "Menu principal, modo explorar e instrumento de cinco esferas"
-git push
-git push origin v0.5.2
-```
-
-
-## Instrumento funcional v0.5.2
-
-El módulo `/instrumento/` incorpora cinco esferas independientes:
-
-- Q1: nota musical.
-- Q2: forma de onda.
-- Q3: filtro.
-- Q4: reverb y delay.
-- Q5: tempo y patrón rítmico.
-
-También incluye un secuenciador de ocho pasos y reproducción en loop.
-
-
-## Desarrollo y autoría
-
-- **Julio Zaldívar** · aka **m0m0**
-- **Ale Escárcega**
-
-Proyecto desarrollado en el marco de **Ecologías de la Imaginación — Laboratorio Transversal de Arte, Ciencia y Tecnología, 2026**.
+La página no debería bloquear Firefox ni perder control del transporte.
