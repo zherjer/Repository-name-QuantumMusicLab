@@ -2,6 +2,10 @@
 
 **Desarrollado por Julio Zaldívar · aka m0m0 · y Ale Escárcega**
 
+Descripción:
+
+Primera versión funcional del instrumento musical basado en cinco esferas de Bloch. Esta versión valida la interacción entre exploración cuántica y síntesis sonora, e incorpora un primer secuenciador experimental para las pruebas del taller "Sonidos Cuánticos: música del mundo visible". Se detectó un problema conocido de estabilidad durante arrastres rápidos del mouse, cuya solución forma parte del rediseño arquitectónico previsto para la versión 0.6.0.
+
 Esta versión corrige una saturación detectada al mover bruscamente los vectores
 de las esferas durante la reproducción.
 
